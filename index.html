@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Companion Testing Hub</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%); min-height: 100vh; margin: 0; padding: 40px 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+
+        h1 { color: white; text-align: center; font-size: 32px; margin-bottom: 10px; }
+        .subtitle { color: #a0aec0; text-align: center; margin-bottom: 40px; font-size: 18px; }
+
+        .card-grid { display: grid; gap: 20px; }
+
+        .card { background: white; border-radius: 12px; padding: 25px; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; display: block; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .card-badge { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 14px; }
+        .badge-general { background: #3182ce; }
+        .badge-ch1 { background: #38a169; }
+        .badge-ch2 { background: #3182ce; }
+        .badge-ch3 { background: #805ad5; }
+        .badge-ch4 { background: #dd6b20; }
+
+        .card-title { font-size: 20px; font-weight: 600; color: #2d3748; margin: 0; }
+        .card-description { color: #718096; font-size: 14px; margin: 0; line-height: 1.5; }
+
+        .card-stats { display: flex; gap: 20px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
+        .stat { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #718096; }
+        .stat-icon { font-size: 16px; }
+
+        .instructions { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 25px; margin-bottom: 30px; color: white; }
+        .instructions h2 { margin-top: 0; font-size: 18px; color: #90cdf4; }
+        .instructions ol { margin: 0; padding-left: 20px; line-height: 1.8; }
+        .instructions li { color: #e2e8f0; }
+
+        .footer { text-align: center; margin-top: 40px; color: #a0aec0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analytics Companion Testing Hub</h1>
+        <p class="subtitle">Select a chapter to begin testing</p>
+
+        <div class="instructions">
+            <h2>Testing Instructions</h2>
+            <ol>
+                <li>Start with the <strong>General Tests</strong> to verify basic behaviors</li>
+                <li>Then test each chapter you want to evaluate</li>
+                <li>Each form has pre-populated test cases with expected behaviors</li>
+                <li>Mark each test as Pass, Partial, or Fail</li>
+                <li>Add notes to explain any issues you encounter</li>
+                <li>Submit each form when done - results go to a shared spreadsheet</li>
+            </ol>
+        </div>
+
+        <div class="card-grid">
+            <a href="00_General_Tests_Form.html" class="card">
+                <div class="card-header">
+                    <div class="card-badge badge-general">GEN</div>
+                    <div>
+                        <h2 class="card-title">General Tests</h2>
+                        <p class="card-description">Welcome messages, mode detection, stage sequence, core behaviors</p>
+                    </div>
+                </div>
+                <div class="card-stats">
+                    <span class="stat"><span class="stat-icon">📋</span> 8 tests</span>
+                    <span class="stat"><span class="stat-icon">⏱️</span> ~15 min</span>
+                </div>
+            </a>
+
+            <a href="01_Chapter1_Tests_Form.html" class="card">
+                <div class="card-header">
+                    <div class="card-badge badge-ch1">CH1</div>
+                    <div>
+                        <h2 class="card-title">Chapter 1: Data Foundations</h2>
+                        <p class="card-description">Representation, granularity, selection bias, proxies, association vs causation</p>
+                    </div>
+                </div>
+                <div class="card-stats">
+                    <span class="stat"><span class="stat-icon">📋</span> 11 tests</span>
+                    <span class="stat"><span class="stat-icon">🎯</span> 3 critical</span>
+                    <span class="stat"><span class="stat-icon">⏱️</span> ~20 min</span>
+                </div>
+            </a>
+
+            <a href="02_Chapter2_Tests_Form.html" class="card">
+                <div class="card-header">
+                    <div class="card-badge badge-ch2">CH2</div>
+                    <div>
+                        <h2 class="card-title">Chapter 2: Regression</h2>
+                        <p class="card-description">Coefficient interpretation, association language, R-squared caveats</p>
+                    </div>
+                </div>
+                <div class="card-stats">
+                    <span class="stat"><span class="stat-icon">📋</span> 9 tests</span>
+                    <span class="stat"><span class="stat-icon">🎯</span> 3 critical</span>
+                    <span class="stat"><span class="stat-icon">⏱️</span> ~20 min</span>
+                </div>
+            </a>
+
+            <a href="03_Chapter3_Tests_Form.html" class="card">
+                <div class="card-header">
+                    <div class="card-badge badge-ch3">CH3</div>
+                    <div>
+                        <h2 class="card-title">Chapter 3: Classification</h2>
+                        <p class="card-description">Selection on outcome, accuracy trap, threshold as business decision</p>
+                    </div>
+                </div>
+                <div class="card-stats">
+                    <span class="stat"><span class="stat-icon">📋</span> 8 tests</span>
+                    <span class="stat"><span class="stat-icon">🎯</span> 3 critical</span>
+                    <span class="stat"><span class="stat-icon">⏱️</span> ~20 min</span>
+                </div>
+            </a>
+
+            <a href="04_Chapter4_Tests_Form.html" class="card">
+                <div class="card-header">
+                    <div class="card-badge badge-ch4">CH4</div>
+                    <div>
+                        <h2 class="card-title">Chapter 4: Clustering</h2>
+                        <p class="card-description">Scaling importance, reification trap, K as business decision, segment labeling</p>
+                    </div>
+                </div>
+                <div class="card-stats">
+                    <span class="stat"><span class="stat-icon">📋</span> 10 tests</span>
+                    <span class="stat"><span class="stat-icon">🎯</span> 3 critical</span>
+                    <span class="stat"><span class="stat-icon">⏱️</span> ~20 min</span>
+                </div>
+            </a>
+        </div>
+
+        <p class="footer">Analytics for Managers - Companion Testing Suite</p>
+    </div>
+</body>
+</html>

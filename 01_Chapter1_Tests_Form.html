@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Data Foundations - Analytics Companion Testing</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f5f7fa; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+        h1 { color: #1a365d; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .chapter-badge { display: inline-block; background: #38a169; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 20px; }
+        .section-divider { background: #edf2f7; padding: 15px 20px; margin: 30px -40px; font-weight: 600; color: #2d3748; font-size: 18px; }
+
+        .tester-section { background: #f7fafc; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .tester-section h3 { margin-top: 0; color: #2d3748; }
+        .tester-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .tester-row input { padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; }
+        .tester-row input:focus { outline: none; border-color: #38a169; }
+
+        .test-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .test-card:hover { border-color: #cbd5e0; }
+        .test-card.critical { border-left: 4px solid #e53e3e; }
+        .test-card.important { border-left: 4px solid #ed8936; }
+        .test-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .test-id { background: #c6f6d5; color: #276749; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .test-id.critical { background: #fed7d7; color: #c53030; }
+        .test-id.important { background: #feebc8; color: #c05621; }
+        .test-title { font-size: 16px; font-weight: 600; color: #2d3748; margin: 0 0 8px 0; }
+        .test-description { color: #718096; font-size: 14px; margin-bottom: 15px; }
+        .test-prompt { background: #f0fff4; padding: 12px; border-radius: 6px; font-size: 13px; color: #276749; margin-bottom: 15px; border-left: 3px solid #38a169; }
+        .test-prompt strong { display: block; margin-bottom: 5px; }
+
+        .result-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .result-label { font-weight: 600; color: #4a5568; min-width: 60px; }
+        .result-options { display: flex; gap: 8px; }
+        .result-btn { padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .result-btn:hover { border-color: #38a169; background: #f0fff4; }
+        .result-btn.selected { border-color: #38a169; background: #38a169; color: white; }
+        .result-btn.pass.selected { background: #48bb78; border-color: #48bb78; }
+        .result-btn.partial.selected { background: #ed8936; border-color: #ed8936; }
+        .result-btn.fail.selected { background: #f56565; border-color: #f56565; }
+
+        .notes-field { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px; resize: vertical; min-height: 60px; }
+        .notes-field:focus { outline: none; border-color: #38a169; }
+        .notes-label { font-size: 13px; color: #718096; margin-bottom: 5px; }
+
+        .submit-section { text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e2e8f0; }
+        .submit-btn { background: #38a169; color: white; border: none; padding: 15px 50px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+        .submit-btn:hover { background: #2f855a; }
+        .submit-btn:disabled { background: #a0aec0; cursor: not-allowed; }
+
+        .message { padding: 15px; border-radius: 8px; margin-top: 20px; display: none; }
+        .success { background: #c6f6d5; color: #276749; }
+        .error { background: #fed7d7; color: #c53030; }
+
+        .companion-select { margin-bottom: 20px; }
+        .companion-select label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
+        .companion-options { display: flex; gap: 10px; }
+        .companion-btn { padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-size: 14px; }
+        .companion-btn:hover { border-color: #38a169; }
+        .companion-btn.selected { border-color: #38a169; background: #f0fff4; }
+
+        .legend { background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
+        .legend-item { display: inline-flex; align-items: center; margin-right: 20px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; margin-right: 6px; }
+        .legend-color.critical { background: #e53e3e; }
+        .legend-color.important { background: #ed8936; }
+
+        @media (max-width: 600px) {
+            .tester-row { grid-template-columns: 1fr; }
+            .test-header { flex-direction: column; gap: 10px; }
+            .result-options { flex-wrap: wrap; }
+            .container { padding: 20px; }
+            .section-divider { margin: 30px -20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="chapter-badge">Chapter 1</span>
+        <h1>Data Literacy Foundations</h1>
+        <p class="subtitle">Data representation, granularity, selection bias, proxies, association vs causation</p>
+
+        <div class="legend">
+            <span class="legend-item"><span class="legend-color critical"></span> Critical (Must Pass)</span>
+            <span class="legend-item"><span class="legend-color important"></span> Important (Should Pass)</span>
+        </div>
+
+        <form id="testForm">
+            <input type="hidden" name="chapter" value="Chapter 1">
+
+            <div class="tester-section">
+                <h3>Tester Information</h3>
+                <div class="tester-row">
+                    <input type="text" name="testerName" placeholder="Your Name *" required>
+                    <input type="email" name="testerEmail" placeholder="Email (optional)">
+                    <input type="text" name="testDate" id="testDate" placeholder="Test Date">
+                </div>
+            </div>
+
+            <div class="companion-select">
+                <label>Which Companion are you testing? *</label>
+                <div class="companion-options">
+                    <button type="button" class="companion-btn" data-value="Reasoning Companion">Analytics Reasoning Companion</button>
+                    <button type="button" class="companion-btn" data-value="Modeling Sandbox">Analytics Modeling Sandbox</button>
+                </div>
+                <input type="hidden" name="companion" id="companionInput" required>
+            </div>
+
+            <div class="section-divider">Example Mode Tests</div>
+
+            <!-- Test 1.E1 -->
+            <div class="test-card important">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id important">TEST 1.E1 - IMPORTANT</span>
+                        <h3 class="test-title">Understanding Representation</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should explain that datasets are selective records, not complete truth.</p>
+                <div class="test-prompt">
+                    <strong>Setup:</strong> Say "I'm working on Chapter 1 example, the Walmart data"
+                </div>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Ask "What does this dataset represent?"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Frames data as representation not reality, asks about scope/time/geography, mentions what might be excluded, does NOT treat data as complete
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1E1" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1E1" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1E1" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1E1" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1E1" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.E2 -->
+            <div class="test-card important">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id important">TEST 1.E2 - IMPORTANT</span>
+                        <h3 class="test-title">Unit of Analysis Explanation</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should clearly explain granularity and what "one row" represents.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Ask "What's the difference between line-item and customer data?"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Explains "one row = one unit", describes each granularity level, discusses trade-offs (detail vs aggregation), connects to business decisions
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1E2" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1E2" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1E2" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1E2" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1E2" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.E3 -->
+            <div class="test-card critical">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id critical">TEST 1.E3 - CRITICAL</span>
+                        <h3 class="test-title">Selection Bias Teaching</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should enthusiastically teach about selection bias and survivorship bias.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Ask "Should I worry about who's not in this data?"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Affirms importance, explains survivorship bias, explains selection on outcome, provides concrete examples, establishes as ongoing habit
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1E3" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1E3" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1E3" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1E3" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1E3" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.E4 -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST 1.E4</span>
+                        <h3 class="test-title">Proxy Explanation</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should explain proxies with appropriate caveats.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Ask "Can we use visit frequency to measure loyalty?"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Explains proxy concept, acknowledges usefulness, lists specific limitations, emphasizes stating assumptions
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1E4" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1E4" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1E4" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1E4" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1E4" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.E5 -->
+            <div class="test-card critical">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id critical">TEST 1.E5 - CRITICAL</span>
+                        <h3 class="test-title">Association vs Causation Teaching</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion must distinguish association from causation and NOT recommend action based on correlation.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Say "Stores with more employees have higher profits. Should we hire more staff?"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Does NOT recommend hiring, explains association vs causation, lists multiple alternative explanations (reverse causation, confounders), discusses what causal inference requires
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1E5" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1E5" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1E5" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1E5" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1E5" placeholder="What happened?"></textarea>
+            </div>
+
+            <div class="section-divider">Exercise Mode Tests (Socratic)</div>
+
+            <!-- Test 1.X1 -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST 1.X1</span>
+                        <h3 class="test-title">Unit of Analysis Exercise</h3>
+                    </div>
+                </div>
+                <p class="test-description">In exercise mode, companion should use Socratic questioning, not give answers.</p>
+                <div class="test-prompt">
+                    <strong>Setup:</strong> Say "I'm working on Exercise 1 - unit of analysis question"
+                </div>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Say "For 'which product category generates most revenue?' the unit should be customers"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Does NOT say "wrong", asks probing questions ("If each row is a customer, what would you see about products?"), guides user to discover the issue
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1X1" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1X1" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1X1" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1X1" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1X1" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.X3 -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST 1.X3</span>
+                        <h3 class="test-title">Proxy Limitations Exercise</h3>
+                    </div>
+                </div>
+                <p class="test-description">Companion should probe for deeper limitations, not accept superficial answers.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Say "Visit frequency is a good proxy for loyalty, limitation is that some people live far away"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Acknowledges answer, probes for additional limitations, questions underlying assumptions ("Could someone visit often but not be loyal?")
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1X3" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1X3" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1X3" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1X3" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1X3" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.X4 -->
+            <div class="test-card important">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id important">TEST 1.X4 - IMPORTANT</span>
+                        <h3 class="test-title">Alternative Explanations Exercise</h3>
+                    </div>
+                </div>
+                <p class="test-description">Companion should push for multiple alternative explanations.</p>
+                <div class="test-prompt">
+                    <strong>Setup:</strong> Say "I'm working on Exercise 5 about alternative explanations"
+                </div>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Provide only one weak alternative: "Maybe customers who like promotions also like to spend more"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Acknowledges but asks for more, prompts different categories (timing, customer types, product types), does NOT accept single answer as complete
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1X4" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1X4" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1X4" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1X4" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1X4" placeholder="What happened?"></textarea>
+            </div>
+
+            <div class="section-divider">Trap Detection Tests</div>
+
+            <!-- Test 1.T1 -->
+            <div class="test-card critical">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id critical">TEST 1.T1 - CRITICAL</span>
+                        <h3 class="test-title">Data-as-Truth Trap</h3>
+                    </div>
+                </div>
+                <p class="test-description">Companion must catch when user treats data as complete truth.</p>
+                <div class="test-prompt">
+                    <strong>Trigger:</strong> Say "This dataset shows us exactly what happened with customers"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Catches the "exactly" overstatement, reminds about representation principle, asks about exclusions
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1T1" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1T1" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1T1" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1T1" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1T1" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.T2 -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST 1.T2</span>
+                        <h3 class="test-title">Unit Confusion Trap</h3>
+                    </div>
+                </div>
+                <p class="test-description">Companion should catch when user confuses units of analysis.</p>
+                <div class="test-prompt">
+                    <strong>Trigger:</strong> When looking at transaction-level data, say "Each customer purchased 3 items"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Notes the unit confusion, clarifies current granularity, does not let confusion pass
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1T2" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1T2" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1T2" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1T2" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1T2" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 1.T3 -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST 1.T3</span>
+                        <h3 class="test-title">Proxy Face-Value Trap</h3>
+                    </div>
+                </div>
+                <p class="test-description">Companion should challenge when user accepts proxy at face value.</p>
+                <div class="test-prompt">
+                    <strong>Trigger:</strong> Say "High visit frequency = loyal customer, that's just true"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Does NOT accept the equivalence, challenges with counter-examples, reinforces proxy limitations
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_1T3" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_1T3" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_1T3" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_1T3" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_1T3" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Overall Comments -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">OVERALL</span>
+                        <h3 class="test-title">Overall Chapter 1 Assessment</h3>
+                    </div>
+                </div>
+                <div class="notes-label">What worked well?</div>
+                <textarea class="notes-field" name="workedWell" placeholder="Describe behaviors that met expectations..."></textarea>
+                <br><br>
+                <div class="notes-label">What needs improvement?</div>
+                <textarea class="notes-field" name="needsImprovement" placeholder="Describe any issues or gaps..."></textarea>
+                <br><br>
+                <div class="notes-label">Specific bugs or issues:</div>
+                <textarea class="notes-field" name="bugs" placeholder="List any specific problems with quotes if possible..."></textarea>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Chapter 1 Test Results</button>
+                <div class="message success" id="successMsg">Test results submitted successfully!</div>
+                <div class="message error" id="errorMsg">Error submitting. Please try again.</div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('testDate').value = new Date().toLocaleDateString();
+
+        document.querySelectorAll('.companion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.companion-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                document.getElementById('companionInput').value = btn.dataset.value;
+            });
+        });
+
+        document.querySelectorAll('.result-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const field = btn.dataset.field;
+                document.querySelectorAll(`[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                document.querySelector(`input[name="${field}"]`).value = btn.dataset.value;
+            });
+        });
+
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const formData = new FormData(e.target);
+            const data = { timestamp: new Date().toISOString() };
+            formData.forEach((value, key) => { data[key] = value; });
+
+            try {
+                const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'none';
+            } catch (error) {
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('successMsg').style.display = 'none';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Chapter 1 Test Results';
+        });
+    </script>
+</body>
+</html>

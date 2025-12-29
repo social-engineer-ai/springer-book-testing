@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Classification - Analytics Companion Testing</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f5f7fa; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+        h1 { color: #1a365d; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .chapter-badge { display: inline-block; background: #805ad5; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 20px; }
+        .section-divider { background: #faf5ff; padding: 15px 20px; margin: 30px -40px; font-weight: 600; color: #553c9a; font-size: 18px; }
+
+        .tester-section { background: #f7fafc; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .tester-section h3 { margin-top: 0; color: #2d3748; }
+        .tester-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .tester-row input { padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; }
+        .tester-row input:focus { outline: none; border-color: #805ad5; }
+
+        .test-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .test-card.critical { border-left: 4px solid #e53e3e; }
+        .test-card.important { border-left: 4px solid #ed8936; }
+        .test-header { margin-bottom: 15px; }
+        .test-id { background: #e9d8fd; color: #553c9a; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .test-id.critical { background: #fed7d7; color: #c53030; }
+        .test-id.important { background: #feebc8; color: #c05621; }
+        .test-title { font-size: 16px; font-weight: 600; color: #2d3748; margin: 8px 0; }
+        .test-description { color: #718096; font-size: 14px; margin-bottom: 15px; }
+        .test-prompt { background: #faf5ff; padding: 12px; border-radius: 6px; font-size: 13px; color: #553c9a; margin-bottom: 10px; border-left: 3px solid #805ad5; }
+        .test-prompt strong { display: block; margin-bottom: 5px; }
+
+        .result-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .result-label { font-weight: 600; color: #4a5568; min-width: 60px; }
+        .result-options { display: flex; gap: 8px; }
+        .result-btn { padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .result-btn:hover { border-color: #805ad5; }
+        .result-btn.pass.selected { background: #48bb78; border-color: #48bb78; color: white; }
+        .result-btn.partial.selected { background: #ed8936; border-color: #ed8936; color: white; }
+        .result-btn.fail.selected { background: #f56565; border-color: #f56565; color: white; }
+
+        .notes-field { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px; resize: vertical; min-height: 60px; }
+        .notes-field:focus { outline: none; border-color: #805ad5; }
+        .notes-label { font-size: 13px; color: #718096; margin-bottom: 5px; }
+
+        .submit-section { text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e2e8f0; }
+        .submit-btn { background: #805ad5; color: white; border: none; padding: 15px 50px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+        .submit-btn:hover { background: #6b46c1; }
+        .submit-btn:disabled { background: #a0aec0; cursor: not-allowed; }
+
+        .message { padding: 15px; border-radius: 8px; margin-top: 20px; display: none; }
+        .success { background: #c6f6d5; color: #276749; }
+        .error { background: #fed7d7; color: #c53030; }
+
+        .companion-select { margin-bottom: 20px; }
+        .companion-select label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
+        .companion-options { display: flex; gap: 10px; }
+        .companion-btn { padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-size: 14px; }
+        .companion-btn:hover { border-color: #805ad5; }
+        .companion-btn.selected { border-color: #805ad5; background: #faf5ff; }
+
+        .legend { background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
+        .legend-item { display: inline-flex; align-items: center; margin-right: 20px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; margin-right: 6px; }
+        .legend-color.critical { background: #e53e3e; }
+        .legend-color.important { background: #ed8936; }
+
+        @media (max-width: 600px) { .tester-row { grid-template-columns: 1fr; } .result-options { flex-wrap: wrap; } .container { padding: 20px; } .section-divider { margin: 30px -20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="chapter-badge">Chapter 3</span>
+        <h1>Classification</h1>
+        <p class="subtitle">Logistic regression, confusion matrices, precision/recall, threshold selection</p>
+
+        <div class="legend">
+            <span class="legend-item"><span class="legend-color critical"></span> Critical (Must Pass)</span>
+            <span class="legend-item"><span class="legend-color important"></span> Important (Should Pass)</span>
+        </div>
+
+        <form id="testForm">
+            <input type="hidden" name="chapter" value="Chapter 3">
+
+            <div class="tester-section">
+                <h3>Tester Information</h3>
+                <div class="tester-row">
+                    <input type="text" name="testerName" placeholder="Your Name *" required>
+                    <input type="email" name="testerEmail" placeholder="Email (optional)">
+                    <input type="text" name="testDate" id="testDate" placeholder="Test Date">
+                </div>
+            </div>
+
+            <div class="companion-select">
+                <label>Which Companion are you testing? *</label>
+                <div class="companion-options">
+                    <button type="button" class="companion-btn" data-value="Reasoning Companion">Analytics Reasoning Companion</button>
+                    <button type="button" class="companion-btn" data-value="Modeling Sandbox">Analytics Modeling Sandbox</button>
+                </div>
+                <input type="hidden" name="companion" id="companionInput" required>
+            </div>
+
+            <div class="section-divider">7-Stage Workflow Tests (Example Mode)</div>
+
+            <!-- Test 3.E3 -->
+            <div class="test-card critical">
+                <div class="test-header">
+                    <span class="test-id critical">TEST 3.E3 - CRITICAL</span>
+                    <h3 class="test-title">Selection on Outcome Warning</h3>
+                </div>
+                <p class="test-description">Companion MUST raise selection bias issue - churn data excludes early churners.</p>
+                <div class="test-prompt">
+                    <strong>Setup:</strong> Say "I'm working on Chapter 3 classification example with churn data"
+                </div>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Proceed to Stage 3 (Data Understanding)
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> EXPLICITLY raises that customers who churned in first 6 months are EXCLUDED, explains this is "selection on outcome", notes model can only learn about "late churn"
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3E3" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3E3" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3E3" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3E3" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3E3" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 3.E6 -->
+            <div class="test-card important">
+                <div class="test-header">
+                    <span class="test-id important">TEST 3.E6 - IMPORTANT</span>
+                    <h3 class="test-title">Probabilities, Not Labels</h3>
+                </div>
+                <p class="test-description">Companion should correct certainty language about predictions.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Ask "So which customers will churn?"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Corrects "will churn" to probabilities, gives probability examples (8%, 27%, 65%), introduces threshold as business decision, does NOT provide binary predictions
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3E6" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3E6" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3E6" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3E6" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3E6" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 3.E7 -->
+            <div class="test-card important">
+                <div class="test-header">
+                    <span class="test-id important">TEST 3.E7 - IMPORTANT</span>
+                    <h3 class="test-title">Metrics Explanation</h3>
+                </div>
+                <p class="test-description">Companion should explain precision/recall trade-off and connect to business costs.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Proceed to Stage 6 (Evaluation)
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Explains precision clearly, explains recall clearly, connects to business costs (false positive vs false negative), asks about relative cost of errors
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3E7" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3E7" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3E7" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3E7" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3E7" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 3.E8 -->
+            <div class="test-card critical">
+                <div class="test-header">
+                    <span class="test-id critical">TEST 3.E8 - CRITICAL</span>
+                    <h3 class="test-title">Threshold as Business Decision</h3>
+                </div>
+                <p class="test-description">Companion should NOT prescribe a threshold - it's a business decision.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong> Ask "What threshold should we use?"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Does NOT prescribe a specific threshold, explains trade-off (lower = more recall, lower precision), asks about business constraints, offers to show how metrics change
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3E8" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3E8" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3E8" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3E8" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3E8" placeholder="What happened?"></textarea>
+            </div>
+
+            <div class="section-divider">Trap Detection Tests</div>
+
+            <!-- Test 3.T1 -->
+            <div class="test-card critical">
+                <div class="test-header">
+                    <span class="test-id critical">TEST 3.T1 - CRITICAL</span>
+                    <h3 class="test-title">Accuracy Celebration Trap</h3>
+                </div>
+                <p class="test-description">Companion MUST put accuracy in context of class imbalance.</p>
+                <div class="test-prompt">
+                    <strong>Trigger:</strong> Say "The model is 79% accurate, that's great!"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Introduces baseline comparison (73% no-churn rate), questions accuracy relevance, redirects to recall/precision, does NOT celebrate accuracy
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3T1" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3T1" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3T1" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3T1" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3T1" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 3.T2 -->
+            <div class="test-card">
+                <div class="test-header">
+                    <span class="test-id">TEST 3.T2</span>
+                    <h3 class="test-title">Label Fixation Trap</h3>
+                </div>
+                <p class="test-description">Companion should correct certainty language about predictions.</p>
+                <div class="test-prompt">
+                    <strong>Trigger:</strong> Say "Customer A will churn" (stated as fact)
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Corrects certainty language, restates as probability, notes uncertainty, connects to action implications
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3T2" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3T2" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3T2" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3T2" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3T2" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 3.T3 -->
+            <div class="test-card important">
+                <div class="test-header">
+                    <span class="test-id important">TEST 3.T3 - IMPORTANT</span>
+                    <h3 class="test-title">Default Threshold Fallacy</h3>
+                </div>
+                <p class="test-description">Companion should question 0.5 threshold if user accepts it without reasoning.</p>
+                <div class="test-prompt">
+                    <strong>Trigger:</strong> Accept 0.5 threshold without questioning: "Let's use 0.5 as the threshold"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Questions why 0.5 makes sense, notes 0.5 is arbitrary default, asks about business justification, suggests exploring alternatives
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3T3" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3T3" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3T3" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3T3" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3T3" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Test 3.T4 -->
+            <div class="test-card">
+                <div class="test-header">
+                    <span class="test-id">TEST 3.T4</span>
+                    <h3 class="test-title">Metric Absolutism Trap</h3>
+                </div>
+                <p class="test-description">Companion should not endorse any single metric as "most important".</p>
+                <div class="test-prompt">
+                    <strong>Trigger:</strong> Say "Recall is the most important metric"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected:</strong> Does NOT endorse single metric, explains trade-off, asks about relative costs of different error types
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_3T4" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_3T4" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_3T4" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_3T4" value="">
+                <div class="notes-label">Notes:</div>
+                <textarea class="notes-field" name="notes_3T4" placeholder="What happened?"></textarea>
+            </div>
+
+            <!-- Overall Comments -->
+            <div class="test-card">
+                <div class="test-header">
+                    <span class="test-id">OVERALL</span>
+                    <h3 class="test-title">Overall Chapter 3 Assessment</h3>
+                </div>
+                <div class="notes-label">What worked well?</div>
+                <textarea class="notes-field" name="workedWell" placeholder="Describe behaviors that met expectations..."></textarea>
+                <br><br>
+                <div class="notes-label">What needs improvement?</div>
+                <textarea class="notes-field" name="needsImprovement" placeholder="Describe any issues or gaps..."></textarea>
+                <br><br>
+                <div class="notes-label">Specific bugs or issues:</div>
+                <textarea class="notes-field" name="bugs" placeholder="List any specific problems..."></textarea>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Chapter 3 Test Results</button>
+                <div class="message success" id="successMsg">Test results submitted successfully!</div>
+                <div class="message error" id="errorMsg">Error submitting. Please try again.</div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('testDate').value = new Date().toLocaleDateString();
+        document.querySelectorAll('.companion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.companion-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                document.getElementById('companionInput').value = btn.dataset.value;
+            });
+        });
+        document.querySelectorAll('.result-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const field = btn.dataset.field;
+                document.querySelectorAll(`[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                document.querySelector(`input[name="${field}"]`).value = btn.dataset.value;
+            });
+        });
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            const formData = new FormData(e.target);
+            const data = { timestamp: new Date().toISOString() };
+            formData.forEach((value, key) => { data[key] = value; });
+            try {
+                const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'none';
+            } catch (error) {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Chapter 3 Test Results';
+        });
+    </script>
+</body>
+</html>

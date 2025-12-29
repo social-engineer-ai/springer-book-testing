@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Tests - Analytics Companion Testing</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f5f7fa; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+        h1 { color: #1a365d; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .chapter-badge { display: inline-block; background: #3182ce; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 20px; }
+
+        .tester-section { background: #f7fafc; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .tester-section h3 { margin-top: 0; color: #2d3748; }
+        .tester-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .tester-row input { padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; }
+        .tester-row input:focus { outline: none; border-color: #3182ce; }
+
+        .test-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .test-card:hover { border-color: #cbd5e0; }
+        .test-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .test-id { background: #edf2f7; color: #4a5568; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .test-title { font-size: 16px; font-weight: 600; color: #2d3748; margin: 0 0 8px 0; }
+        .test-description { color: #718096; font-size: 14px; margin-bottom: 15px; }
+        .test-prompt { background: #ebf8ff; padding: 12px; border-radius: 6px; font-size: 13px; color: #2c5282; margin-bottom: 15px; border-left: 3px solid #3182ce; }
+        .test-prompt strong { display: block; margin-bottom: 5px; }
+
+        .result-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .result-label { font-weight: 600; color: #4a5568; min-width: 60px; }
+        .result-options { display: flex; gap: 8px; }
+        .result-btn { padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .result-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+        .result-btn.selected { border-color: #3182ce; background: #3182ce; color: white; }
+        .result-btn.pass.selected { background: #48bb78; border-color: #48bb78; }
+        .result-btn.partial.selected { background: #ed8936; border-color: #ed8936; }
+        .result-btn.fail.selected { background: #f56565; border-color: #f56565; }
+
+        .notes-field { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px; resize: vertical; min-height: 60px; }
+        .notes-field:focus { outline: none; border-color: #3182ce; }
+        .notes-label { font-size: 13px; color: #718096; margin-bottom: 5px; }
+
+        .submit-section { text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e2e8f0; }
+        .submit-btn { background: #3182ce; color: white; border: none; padding: 15px 50px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+        .submit-btn:hover { background: #2c5282; }
+        .submit-btn:disabled { background: #a0aec0; cursor: not-allowed; }
+
+        .message { padding: 15px; border-radius: 8px; margin-top: 20px; display: none; }
+        .success { background: #c6f6d5; color: #276749; }
+        .error { background: #fed7d7; color: #c53030; }
+
+        .companion-select { margin-bottom: 20px; }
+        .companion-select label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
+        .companion-options { display: flex; gap: 10px; }
+        .companion-btn { padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 6px; background: white; cursor: pointer; font-size: 14px; }
+        .companion-btn:hover { border-color: #3182ce; }
+        .companion-btn.selected { border-color: #3182ce; background: #ebf8ff; }
+
+        @media (max-width: 600px) {
+            .tester-row { grid-template-columns: 1fr; }
+            .test-header { flex-direction: column; gap: 10px; }
+            .result-options { flex-wrap: wrap; }
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="chapter-badge">General Tests</span>
+        <h1>Welcome & Core Behavior Tests</h1>
+        <p class="subtitle">Test the fundamental behaviors that apply across all chapters</p>
+
+        <form id="testForm">
+            <input type="hidden" name="chapter" value="General">
+
+            <div class="tester-section">
+                <h3>Tester Information</h3>
+                <div class="tester-row">
+                    <input type="text" name="testerName" placeholder="Your Name *" required>
+                    <input type="email" name="testerEmail" placeholder="Email (optional)">
+                    <input type="text" name="testDate" id="testDate" placeholder="Test Date">
+                </div>
+            </div>
+
+            <div class="companion-select">
+                <label>Which Companion are you testing? *</label>
+                <div class="companion-options">
+                    <button type="button" class="companion-btn" data-value="Reasoning Companion">Analytics Reasoning Companion</button>
+                    <button type="button" class="companion-btn" data-value="Modeling Sandbox">Analytics Modeling Sandbox</button>
+                    <button type="button" class="companion-btn" data-value="Both">Both</button>
+                </div>
+                <input type="hidden" name="companion" id="companionInput" required>
+            </div>
+
+            <!-- Test G1: Welcome Message -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G1</span>
+                        <h3 class="test-title">Welcome Message</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should greet warmly, identify itself, and ask what the user is working on.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    Start a new conversation. Say "Hello" or "Hi"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Greets user, identifies as Analytics Reasoning Companion (or Sandbox), asks about chapter/topic, does NOT launch into technical content
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G1" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G1" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G1" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G1" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G1" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Test G2: Mode Detection - Example -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G2</span>
+                        <h3 class="test-title">Mode Detection - Example Mode</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should detect when user is working on a chapter EXAMPLE and switch to teaching mode.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    Say "I'm working on the Chapter 2 example with Boston housing data"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Acknowledges example mode, begins with Stage 1 (Business Understanding), uses teaching tone, explains concepts proactively
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G2" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G2" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G2" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G2" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G2" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Test G3: Mode Detection - Exercise -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G3</span>
+                        <h3 class="test-title">Mode Detection - Exercise Mode</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should detect when user is working on an EXERCISE and switch to Socratic mode.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    Say "I'm working on Exercise 8.2 from Chapter 2"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Acknowledges exercise mode, uses Socratic questioning, does NOT give direct answers, probes user's reasoning
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G3" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G3" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G3" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G3" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G3" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Test G4: Stage Sequence -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G4</span>
+                        <h3 class="test-title">7-Stage Workflow Sequence</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should follow the 7-stage workflow in order, not skip stages.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    Start a chapter example and try to skip ahead: "Let's look at the model coefficients"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Redirects to earlier stages, explains why sequence matters, does NOT jump to modeling prematurely
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G4" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G4" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G4" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G4" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G4" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Test G5: Causal Language Detection -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G5</span>
+                        <h3 class="test-title">Causal Language Detection</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should catch when user makes causal claims from observational data.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    Say "So this variable CAUSES the outcome to increase"
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Flags the causal language, redirects to "associated with", asks about confounders, does NOT endorse causal interpretation
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G5" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G5" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G5" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G5" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G5" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Test G6: Selection Bias Question -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G6</span>
+                        <h3 class="test-title">Selection Bias Awareness</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should proactively ask "who is NOT in this data?" during data understanding.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    Proceed through a chapter example to Stage 3 (Data Understanding)
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Asks about who might be excluded, mentions selection bias, discusses implications of missing cases
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G6" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G6" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G6" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G6" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G6" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Test G7: Tone and Language -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G7</span>
+                        <h3 class="test-title">Appropriate Tone and Language</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should use mentor-like tone, conditional language, and avoid overconfidence.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    Observe language throughout conversation
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Uses "suggests", "may indicate", "in this data"; avoids "proves", "definitely", "always"; encourages without being patronizing
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G7" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G7" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G7" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G7" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G7" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Test G8: Stage Prohibitions -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">TEST G8</span>
+                        <h3 class="test-title">Stage Prohibitions</h3>
+                    </div>
+                </div>
+                <p class="test-description">The companion should NOT mention technical terms before appropriate stage.</p>
+                <div class="test-prompt">
+                    <strong>Test Action:</strong>
+                    In Stage 1 (Business Understanding), check if companion mentions R-squared, coefficients, or model metrics
+                </div>
+                <div class="test-prompt">
+                    <strong>Expected Behavior:</strong>
+                    Stage 1 focuses ONLY on business decision, no technical jargon; technical terms introduced only in later stages
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Result:</span>
+                    <div class="result-options">
+                        <button type="button" class="result-btn pass" data-field="test_G8" data-value="Pass">Pass</button>
+                        <button type="button" class="result-btn partial" data-field="test_G8" data-value="Partial">Partial</button>
+                        <button type="button" class="result-btn fail" data-field="test_G8" data-value="Fail">Fail</button>
+                    </div>
+                </div>
+                <input type="hidden" name="test_G8" value="">
+                <div class="notes-label">Notes (optional):</div>
+                <textarea class="notes-field" name="notes_G8" placeholder="What happened? Any issues?"></textarea>
+            </div>
+
+            <!-- Overall Comments -->
+            <div class="test-card">
+                <div class="test-header">
+                    <div>
+                        <span class="test-id">OVERALL</span>
+                        <h3 class="test-title">Overall Assessment</h3>
+                    </div>
+                </div>
+                <div class="notes-label">What worked well?</div>
+                <textarea class="notes-field" name="workedWell" placeholder="Describe behaviors that met or exceeded expectations..."></textarea>
+                <br><br>
+                <div class="notes-label">What needs improvement?</div>
+                <textarea class="notes-field" name="needsImprovement" placeholder="Describe any issues or gaps..."></textarea>
+                <br><br>
+                <div class="notes-label">Specific bugs or issues (with quotes if possible):</div>
+                <textarea class="notes-field" name="bugs" placeholder="List any specific problems..."></textarea>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Test Results</button>
+                <div class="message success" id="successMsg">Test results submitted successfully!</div>
+                <div class="message error" id="errorMsg">Error submitting. Please try again.</div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Set today's date
+        document.getElementById('testDate').value = new Date().toLocaleDateString();
+
+        // Companion selection
+        document.querySelectorAll('.companion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.companion-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                document.getElementById('companionInput').value = btn.dataset.value;
+            });
+        });
+
+        // Result button selection
+        document.querySelectorAll('.result-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const field = btn.dataset.field;
+                document.querySelectorAll(`[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                document.querySelector(`input[name="${field}"]`).value = btn.dataset.value;
+            });
+        });
+
+        // Form submission
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const formData = new FormData(e.target);
+            const data = { timestamp: new Date().toISOString() };
+            formData.forEach((value, key) => { data[key] = value; });
+
+            try {
+                // Replace with your Google Apps Script URL
+                const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'none';
+
+            } catch (error) {
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('successMsg').style.display = 'none';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Test Results';
+        });
+    </script>
+</body>
+</html>
