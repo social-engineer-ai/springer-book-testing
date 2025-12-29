@@ -420,7 +420,7 @@
             const data = { timestamp: new Date().toISOString() };
             formData.forEach((value, key) => { data[key] = value; });
             try {
-                const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytl4i--uGzcHdE66LEwpAyfVc5FjNWw9v6QzPpP872RBPDlqZsMfbEAdjwAvNDhmBd/exec';
                 await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                 document.getElementById('successMsg').style.display = 'block';
                 document.getElementById('errorMsg').style.display = 'none';
